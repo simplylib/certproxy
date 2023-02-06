@@ -1,0 +1,16 @@
+syntax = "proto3";
+package protocol;
+option go_package="github.com/simplylib/certproxy/protocol";
+
+message CertificateCreateRequest {
+  string token = 1;
+  bytes csr_pem = 2;
+}
+
+message CertificateCreateReply {
+  bytes cert_pem = 1;
+}
+
+service CertificateService {
+  rpc Create(CertificateCreateRequest) returns (CertificateCreateReply) {}
+}
