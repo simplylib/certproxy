@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,7 +12,6 @@ import (
 	"syscall"
 
 	"github.com/simplylib/certproxy/protocol"
-	"github.com/simplylib/certproxy/server"
 	"github.com/simplylib/multierror"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -65,21 +63,7 @@ func getCertificate(ctx context.Context, remote string, domain string) (err erro
 }
 
 func run() error {
-	isServer := flag.Bool("server", false, "run as server")
-	network := flag.String("network", ":9777", "address to listen on")
-
-	flag.CommandLine.Usage = func() {
-		fmt.Fprint(flag.CommandLine.Output(),
-			os.Args[0]+" runs a server or cli client for a certificate proxy\n",
-			"\nUsage: "+os.Args[0]+" [flags]\n",
-			"\nFlags:\n",
-		)
-		flag.CommandLine.PrintDefaults()
-	}
-
-	flag.Parse()
-
-	log.SetFlags(log.LUTC | log.Ldate | log.Ltime)
+	log.SetFlags(log.Ldate | log.Ltime)
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
@@ -92,27 +76,24 @@ func run() error {
 		cancelFunc()
 	}()
 
-	if *isServer {
-		errChan := make(chan error)
-		go func() {
-			s := server.Server{
-				Network: *network,
-			}
-			err := s.Open()
-			if err != nil {
-				errChan <- fmt.Errorf("error while running gRPC server (%w)", err)
-			}
-			errChan <- nil
-		}()
-		select {
-		case err := <-errChan:
-			return err
-		case <-ctx.Done():
-			return ctx.Err()
-		}
+	if len(os.Args) < 2 {
+		return fmt.Errorf("need subcommand run %v with -h", os.Args[0])
 	}
 
-	flag.CommandLine.Usage()
+	switch os.Args[1] {
+	case "server":
+		return runServer(ctx)
+	case "client":
+		return runClient(ctx)
+	default:
+	}
+
+	log.SetFlags(0)
+	log.Print(
+		os.Args[0]+" runs a server or cli client for a certificate proxy\n",
+		"\nUsage: "+os.Args[0]+" [command] [flags]\n",
+		"\nCommands: server, client\n",
+	)
 
 	return nil
 }
