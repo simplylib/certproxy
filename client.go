@@ -90,7 +90,7 @@ func getCertificate(ctx context.Context, token string, remote string, domains []
 		return nil, nil, fmt.Errorf("could not send a CertificateCreateRequest (%w)", err)
 	}
 
-	// verify certificate is valid
+	// verify certificate is valid, TODO: these checks don't really check much.
 	if len(reply.Certificate) == 0 {
 		return nil, nil, errors.New("certificate from server is empty")
 	}
