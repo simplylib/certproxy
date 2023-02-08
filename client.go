@@ -25,7 +25,7 @@ import (
 func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
 	pkey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not create ecdsa private key using P521 (%w)", err)
+		return nil, nil, fmt.Errorf("could not create ecdsa private key using P384 (%w)", err)
 	}
 
 	csr, err := x509.CreateCertificateRequest(rand.Reader, &x509.CertificateRequest{
