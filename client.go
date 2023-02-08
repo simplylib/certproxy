@@ -1,9 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"log"
@@ -14,7 +20,42 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func getCertificate(ctx context.Context, remote string, domain string) (err error) {
+// generateCSR for requested domain, returning a CSR in DER format, private key in PEM format
+// and potentionally an error.
+func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
+	pkey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not create ecdsa private key using P521 (%w)", err)
+	}
+
+	csr, err := x509.CreateCertificateRequest(rand.Reader, &x509.CertificateRequest{
+		Subject: pkix.Name{
+			CommonName: domain,
+		},
+		DNSNames: []string{domain},
+	}, pkey)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not create certificate request (%w)", err)
+	}
+
+	pkcs8PrivKey, err := x509.MarshalPKCS8PrivateKey(pkey)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not marshal private key to PKCS8 (%w)", err)
+	}
+
+	certPrivPEM := &bytes.Buffer{}
+	err = pem.Encode(certPrivPEM, &pem.Block{
+		Type:  "EC PRIVATE KEY",
+		Bytes: pkcs8PrivKey,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not encode private key pem (%w)", err)
+	}
+
+	return csr, certPrivPEM.Bytes(), nil
+}
+
+func getCertificate(ctx context.Context, token string, remote string, domain string) (certificate []byte, privkeypem []byte, err error) {
 	log.Printf("INFO: Dialing gRPC endpoint (%v)", remote)
 	conn, err := grpc.DialContext(
 		ctx,
