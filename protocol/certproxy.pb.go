@@ -29,7 +29,7 @@ type CertificateCreateRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// domain to request a certificate for
 	Domain string `protobuf:"bytes,2,opt,name=domain,proto3" json:"domain,omitempty"`
-	// certificate signing request in DER PEM format
+	// certificate signing request in DER format
 	Csr []byte `protobuf:"bytes,3,opt,name=csr,proto3" json:"csr,omitempty"`
 }
 
@@ -91,7 +91,7 @@ type CertificateCreateReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// certificate in DER PEM format
+	// certificate in PEM format
 	Certificate []byte `protobuf:"bytes,1,opt,name=certificate,proto3" json:"certificate,omitempty"`
 }
 

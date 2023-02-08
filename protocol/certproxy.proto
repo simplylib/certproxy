@@ -7,12 +7,12 @@ message CertificateCreateRequest {
   string token = 1;
   // domain to request a certificate for
   string domain = 2;
-  // certificate signing request in DER PEM format
+  // certificate signing request in DER format
   bytes csr = 3;
 }
 
 message CertificateCreateReply {
-  // certificate in DER PEM format
+  // certificate in PEM format
   bytes certificate = 1;
 }
 

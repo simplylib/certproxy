@@ -55,7 +55,7 @@ func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
 	return csr, certPrivPEM.Bytes(), nil
 }
 
-func getCertificate(ctx context.Context, token string, remote string, domain string) (certificate []byte, privkeypem []byte, err error) {
+func getCertificate(ctx context.Context, token string, remote string, domain string) (certificate []byte, privateKeyPEM []byte, err error) {
 	log.Printf("INFO: Dialing gRPC endpoint (%v)", remote)
 	conn, err := grpc.DialContext(
 		ctx,
@@ -66,7 +66,7 @@ func getCertificate(ctx context.Context, token string, remote string, domain str
 		grpc.WithDefaultCallOptions(grpc.UseCompressor("gzip")),
 	)
 	if err != nil {
-		return fmt.Errorf("could not Dial gRPC server (%w)", err)
+		return nil, nil, fmt.Errorf("could not Dial gRPC server (%w)", err)
 	}
 	defer func() {
 		if err2 := conn.Close(); err != nil {
@@ -77,28 +77,37 @@ func getCertificate(ctx context.Context, token string, remote string, domain str
 	log.Printf("INFO: Connected to gRPC endpoint, creating certificate request")
 	client := protocol.NewCertificateServiceClient(conn)
 
-	reply, err := client.Create(ctx, &protocol.CertificateCreateRequest{})
+	csrDER, privkeypem, err := generateCSR(domain)
 	if err != nil {
-		return fmt.Errorf("could not send a CertificateCreateRequest (%w)", err)
+		return nil, nil, fmt.Errorf("could not generate CSR (%w)", err)
+	}
+
+	reply, err := client.Create(ctx, &protocol.CertificateCreateRequest{
+		Token:  token,
+		Domain: domain,
+		Csr:    csrDER,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not send a CertificateCreateRequest (%w)", err)
 	}
 
 	// verify certificate is valid
-	if len(reply.CertPem) == 0 {
-		return errors.New("certificate from server is empty")
+	if len(reply.Certificate) == 0 {
+		return nil, nil, errors.New("certificate from server is empty")
 	}
 
-	cert, err := x509.ParseCertificate(reply.CertPem)
+	cert, err := x509.ParseCertificate(reply.Certificate)
 	if err != nil {
-		return fmt.Errorf("could not parse certificate from server (%w)", err)
+		return nil, nil, fmt.Errorf("could not parse certificate from server (%w)", err)
 	}
 
 	if cert.Subject.CommonName != domain {
-		return fmt.Errorf("common name from certificate (%v) not the same as domain (%v)", cert.Subject.CommonName, domain)
+		return nil, nil, fmt.Errorf("common name from certificate (%v) not the same as domain (%v)", cert.Subject.CommonName, domain)
 	}
 
-	_ = client
-	return nil
+	return reply.Certificate, privkeypem, nil
 }
+
 func runClient(ctx context.Context) error {
 	return nil
 }
