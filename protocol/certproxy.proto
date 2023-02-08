@@ -3,12 +3,17 @@ package protocol;
 option go_package="github.com/simplylib/certproxy/protocol";
 
 message CertificateCreateRequest {
+  // token to authenticate to certproxy
   string token = 1;
-  bytes csr_pem = 2;
+  // domain to request a certificate for
+  string domain = 2;
+  // certificate signing request in DER PEM format
+  bytes csr = 3;
 }
 
 message CertificateCreateReply {
-  bytes cert_pem = 1;
+  // certificate in DER PEM format
+  bytes certificate = 1;
 }
 
 service CertificateService {
