@@ -22,7 +22,7 @@ import (
 
 // generateCSR for requested domain, returning a CSR in DER format, private key in PEM format
 // and potentionally an error.
-func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
+func generateCSR(domains []string) (csrder []byte, privKeyPEM []byte, err error) {
 	pkey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not create ecdsa private key using P384 (%w)", err)
@@ -30,9 +30,9 @@ func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
 
 	csr, err := x509.CreateCertificateRequest(rand.Reader, &x509.CertificateRequest{
 		Subject: pkix.Name{
-			CommonName: domain,
+			CommonName: domains[0],
 		},
-		DNSNames: []string{domain},
+		DNSNames: domains,
 	}, pkey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not create certificate request (%w)", err)
@@ -55,7 +55,7 @@ func generateCSR(domain string) (csrder []byte, privKeyPEM []byte, err error) {
 	return csr, certPrivPEM.Bytes(), nil
 }
 
-func getCertificate(ctx context.Context, token string, remote string, domain string) (certificate []byte, privateKeyPEM []byte, err error) {
+func getCertificate(ctx context.Context, token string, remote string, domains []string) (certificate []byte, privateKeyPEM []byte, err error) {
 	log.Printf("INFO: Dialing gRPC endpoint (%v)", remote)
 	conn, err := grpc.DialContext(
 		ctx,
@@ -77,15 +77,14 @@ func getCertificate(ctx context.Context, token string, remote string, domain str
 	log.Printf("INFO: Connected to gRPC endpoint, creating certificate request")
 	client := protocol.NewCertificateServiceClient(conn)
 
-	csrDER, privkeypem, err := generateCSR(domain)
+	csrDER, privkeypem, err := generateCSR(domains)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not generate CSR (%w)", err)
 	}
 
 	reply, err := client.Create(ctx, &protocol.CertificateCreateRequest{
-		Token:  token,
-		Domain: domain,
-		Csr:    csrDER,
+		Token:                     token,
+		CertificateSigningRequest: csrDER,
 	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not send a CertificateCreateRequest (%w)", err)
@@ -101,8 +100,8 @@ func getCertificate(ctx context.Context, token string, remote string, domain str
 		return nil, nil, fmt.Errorf("could not parse certificate from server (%w)", err)
 	}
 
-	if cert.Subject.CommonName != domain {
-		return nil, nil, fmt.Errorf("common name from certificate (%v) not the same as domain (%v)", cert.Subject.CommonName, domain)
+	if cert.Subject.CommonName != domains[0] {
+		return nil, nil, fmt.Errorf("common name from certificate (%v) not the same as domain (%v)", cert.Subject.CommonName, domains[0])
 	}
 
 	return reply.Certificate, privkeypem, nil
