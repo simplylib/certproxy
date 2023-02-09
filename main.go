@@ -31,7 +31,7 @@ func run() error {
 	case "server":
 		return runServer(ctx)
 	case "client":
-		return runClient(ctx)
+		return client.Run(ctx)
 	default:
 	}
 
