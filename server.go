@@ -34,7 +34,7 @@ func runServer(ctx context.Context) error {
 	}
 
 	var certificate *tls.Certificate
-	if *certPrivPEMPath != "" || *certPubPEMPath != "" {
+	if *certPrivPEMPath != "" && *certPubPEMPath != "" {
 		cert, err := tls.LoadX509KeyPair(filepath.Clean(*certPubPEMPath), filepath.Clean(*certPrivPEMPath))
 		if err != nil {
 			return fmt.Errorf("could not load x509 key pair (%w)", err)
