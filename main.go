@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/simplylib/certproxy/client"
 )
 
 func run() error {

@@ -8,24 +8,24 @@ import (
 layout examples for cli:
 
 
-certproxy client -server="certproxy.ruxion.com:9777" -san -name="claytontii" -domains="*.claytontii.com,claytontii.com"
+certproxy client -dir /etc/certificateproxy -server="certproxy.claytontii.com:9777" -san -name="claytontii" -domains="*.claytontii.com,claytontii.com"
 
-configuration directory /etc/certproxy
+configuration directory /etc/certificateproxy
 
 dir:
-	certproxy.conf
+	config.json
 	sites/
 		claytontii
 			fullchain.pem
 			privatekey.pem
 
 
-certproxy client -server="certproxy.ruxion.com:9777" -domains="*.claytontii.com,claytontii.com"
+certproxy client -server="certproxy.claytontii.com:9777" -domains="*.claytontii.com,claytontii.com"
 
 configuration directory /etc/certproxy
 
 dir:
-	certproxy.conf
+	config.json
 	sites/
 		*.claytontii.com
 			fullchain.pem
@@ -40,8 +40,8 @@ certproxy client -domains="*.claytontii.com,claytontii.com"
 configuration directory /etc/certproxy
 
 dir:
-	certproxy.conf
-		server: "certproxy.ruxion.com:9777"
+	config.json
+		{"server": "certproxy.claytontii.com:9777"}
 	*.claytontii.com
 		fullchain.pem
 		privatekey.pem
