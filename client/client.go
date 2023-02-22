@@ -5,6 +5,12 @@ import (
 )
 
 /*
+
+configuration precedence:
+1. command line arguments
+2. environment variables
+3. config.json
+
 layout examples for cli:
 
 
@@ -14,6 +20,7 @@ configuration directory /etc/certificateproxy
 
 dir:
 	config.json
+		{"server":""}
 	sites/
 		claytontii
 			fullchain.pem
@@ -26,6 +33,7 @@ configuration directory /etc/certproxy
 
 dir:
 	config.json
+		{"server": ""}
 	sites/
 		*.claytontii.com
 			fullchain.pem
@@ -49,10 +57,29 @@ dir:
 		fullchain.pem
 		privatekey.pem
 
+
+certproxy client --renew
+
+configuration directory /etc/certproxy
+
+dir:
+	config.yaml
+		{"server": "certproxy.claytontii.com:9777"}
+	*.claytontii.com
+		fullchain.pem
+		privatekey.pem
+
 */
 
 // TODO: add note that SAN certificates choose the first domain as the SAN certificate's common name
 
 func Run(ctx context.Context) error {
+	args, err := parseCmdlineArguments()
+	if err != nil {
+		return err
+	}
+
+	_ = args
+
 	return nil
 }
