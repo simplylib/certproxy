@@ -23,6 +23,8 @@ dir:
 		{"server":""}
 	sites/
 		claytontii
+			certificate.json
+				{"domains": [ "*.claytontii.com", "claytontii.com" ] }
 			fullchain.pem
 			privatekey.pem
 
@@ -36,9 +38,13 @@ dir:
 		{"server": ""}
 	sites/
 		*.claytontii.com
+			certificate.json
+				{"domains":["*.claytontii.com"]}
 			fullchain.pem
 			privatekey.pem
 		claytontii.com
+			certificate.json
+				{"domains":["claytontii.com"]}
 			fullchain.pem
 			privatekey.pem
 
@@ -51,9 +57,13 @@ dir:
 	config.json
 		{"server": "certproxy.claytontii.com:9777"}
 	*.claytontii.com
+		certificate.json
+			{"domains":["*.claytontii.com"]}
 		fullchain.pem
 		privatekey.pem
 	claytontii.com
+		certificate.json
+			{"domains":["claytontii.com"]}
 		fullchain.pem
 		privatekey.pem
 
@@ -66,6 +76,8 @@ dir:
 	config.yaml
 		{"server": "certproxy.claytontii.com:9777"}
 	*.claytontii.com
+		certificate.json
+			{"domains":["*.claytontii.com"]}
 		fullchain.pem
 		privatekey.pem
 
