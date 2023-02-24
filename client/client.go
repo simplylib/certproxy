@@ -15,45 +15,34 @@ layout examples for cli:
 
 
 certproxy client -dir /etc/certificateproxy -server="certproxy.claytontii.com:9777" -san -name="claytontii" -domains="*.claytontii.com,claytontii.com"
-
-configuration directory /etc/certificateproxy
-
-dir:
+/etc/certificateproxy:
 	config.json
 		{"server":""}
-	sites/
-		claytontii
-			certificate.json
-				{"domains": [ "*.claytontii.com", "claytontii.com" ] }
-			fullchain.pem
-			privatekey.pem
+	claytontii
+		certificate.json
+			{"domains": [ "*.claytontii.com", "claytontii.com" ] }
+		fullchain.pem
+		privatekey.pem
 
 
 certproxy client -server="certproxy.claytontii.com:9777" -domains="*.claytontii.com,claytontii.com"
-
-configuration directory /etc/certproxy
-
-dir:
+/etc/certproxy:
 	config.json
 		{"server": ""}
-	sites/
-		*.claytontii.com
-			certificate.json
-				{"domains":["*.claytontii.com"]}
-			fullchain.pem
-			privatekey.pem
-		claytontii.com
-			certificate.json
-				{"domains":["claytontii.com"]}
-			fullchain.pem
-			privatekey.pem
+	*.claytontii.com
+		certificate.json
+			{"domains":["*.claytontii.com"]}
+		fullchain.pem
+		privatekey.pem
+	claytontii.com
+		certificate.json
+			{"domains":["claytontii.com"]}
+		fullchain.pem
+		privatekey.pem
 
 
 certproxy client -domains="*.claytontii.com,claytontii.com"
-
-configuration directory /etc/certproxy
-
-dir:
+/etc/certproxy:
 	config.json
 		{"server": "certproxy.claytontii.com:9777"}
 	*.claytontii.com
@@ -68,12 +57,20 @@ dir:
 		privatekey.pem
 
 
+certproxy client -domains="*.claytontii.com" -posthook="sudo systemctl restart nginx"
+/etc/certproxy
+	config.json
+		{"server":"certproxy.claytontii.com:9777", "post_renew_hook":"sudo systemctl restart nginx"}
+	*.claytontii.com
+		certificate.json
+			{"domains":["*.claytontii.com"], "post_renew_hook":"sudo systemctl restart nginx"}
+		fullchain.pem
+		privatekey.pem
+
+
 certproxy client --renew
-
-configuration directory /etc/certproxy
-
-dir:
-	config.yaml
+/etc/certproxy
+	config.json
 		{"server": "certproxy.claytontii.com:9777"}
 	*.claytontii.com
 		certificate.json
