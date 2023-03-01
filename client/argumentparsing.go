@@ -56,10 +56,10 @@ func parseCmdlineArguments() (*config, error) {
 	}
 
 	// Dir
-	args.Dir = os.Getenv("CERTPROXY_DIR")
+	args.Dir = filepath.Clean(os.Getenv("CERTPROXY_DIR"))
 
 	if args.Dir == "" {
-		args.Dir = *dir
+		args.Dir = filepath.Clean(*dir)
 	}
 
 	if args.Dir == "" {
