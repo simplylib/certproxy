@@ -17,6 +17,7 @@ type config struct {
 	// Dir can not be specified by json.
 	Dir     string   `json:"-"`
 	Server  string   `json:"server"`
+	Token   string   `json:"token"`
 	SAN     bool     `json:"-"`
 	Domains []string `json:"-"`
 	Name    string   `json:"-"`
