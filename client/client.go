@@ -25,7 +25,7 @@ layout examples for cli:
 certproxy client -dir /etc/certificateproxy -server="certproxy.claytontii.com:9777" -san -name="claytontii" -domains="*.claytontii.com,claytontii.com"
 /etc/certificateproxy:
 	config.json
-		{"server":""}
+		{"server":"", "token":"apikey"}
 	claytontii
 		certificate.json
 			{"domains": [ "*.claytontii.com", "claytontii.com" ] }
@@ -36,7 +36,7 @@ certproxy client -dir /etc/certificateproxy -server="certproxy.claytontii.com:97
 certproxy client -server="certproxy.claytontii.com:9777" -domains="*.claytontii.com,claytontii.com"
 /etc/certproxy:
 	config.json
-		{"server": ""}
+		{"server": "", "token":"apikey"}
 	*.claytontii.com
 		certificate.json
 			{"domains":["*.claytontii.com"]}
@@ -52,7 +52,7 @@ certproxy client -server="certproxy.claytontii.com:9777" -domains="*.claytontii.
 certproxy client -domains="*.claytontii.com,claytontii.com"
 /etc/certproxy:
 	config.json
-		{"server": "certproxy.claytontii.com:9777"}
+		{"server": "certproxy.claytontii.com:9777", "token":"apikey"}
 	*.claytontii.com
 		certificate.json
 			{"domains":["*.claytontii.com"]}
@@ -68,7 +68,7 @@ certproxy client -domains="*.claytontii.com,claytontii.com"
 certproxy client -domains="*.claytontii.com" -shell="/bin/sh" -posthook="sudo systemctl restart nginx"
 /etc/certproxy
 	config.json
-		{"server":"certproxy.claytontii.com:9777", "post_renew_hook":"sudo systemctl restart nginx"}
+		{"server":"certproxy.claytontii.com:9777", "token":"apikey", "post_renew_hook":"sudo systemctl restart nginx"}
 	*.claytontii.com
 		certificate.json
 			{"domains":["*.claytontii.com"], "post_renew_hook":"sudo systemctl restart nginx"}
@@ -79,7 +79,7 @@ certproxy client -domains="*.claytontii.com" -shell="/bin/sh" -posthook="sudo sy
 certproxy client --renew
 /etc/certproxy
 	config.json
-		{"server": "certproxy.claytontii.com:9777"}
+		{"server": "certproxy.claytontii.com:9777", "token":"apikey"}
 	*.claytontii.com
 		certificate.json
 			{"domains":["*.claytontii.com"]}
