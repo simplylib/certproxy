@@ -69,11 +69,19 @@ func parseCmdlineArguments() (*config, error) {
 	// Unmarshal JSON from config.json
 	bs, err := os.ReadFile(filepath.Join(args.Dir, "config.json"))
 	if err != nil {
-		return nil, fmt.Errorf("could not ReadFile (%w)", err)
+		return nil, fmt.Errorf(
+			"could not ReadFile (%v) error (%w)",
+			filepath.Join(args.Dir, "config.json"),
+			err,
+		)
 	}
 
 	if err = json.Unmarshal(bs, &args); err != nil {
-		return nil, fmt.Errorf("could not unmarshal JSON from (%v) error (%w)", filepath.Join(args.Dir, "config.json"), err)
+		return nil, fmt.Errorf(
+			"could not unmarshal JSON from (%v) error (%w)",
+			filepath.Join(args.Dir, "config.json"),
+			err,
+		)
 	}
 
 	// Server
