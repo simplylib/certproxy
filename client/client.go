@@ -89,7 +89,15 @@ func Run(ctx context.Context) error {
 	}
 
 	if args.Renew {
+		certs, err := getCertificatesFromDisk(ctx, args.Dir)
+		if err != nil {
+			return err
+		}
 
+		err = renewCertificates(ctx, certs)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
