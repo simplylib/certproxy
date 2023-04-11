@@ -55,14 +55,16 @@ func parseCmdlineArguments() (*config, error) {
 		return nil, err
 	}
 
+	args := &config{}
+
 	// Dir
 	args.Dir = filepath.Clean(os.Getenv("CERTPROXY_DIR"))
 
-	if args.Dir == "" {
+	if args.Dir == "." {
 		args.Dir = filepath.Clean(*dir)
 	}
 
-	if args.Dir == "" {
+	if args.Dir == "." {
 		return nil, errors.New("expected -dir or CERTPROXY_DIR to be specified")
 	}
 
