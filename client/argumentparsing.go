@@ -23,20 +23,7 @@ type config struct {
 	Renew   bool     `json:"-"`
 }
 
-func defaultConfig() *config {
-	return &config{
-		Dir:     "/etc/certproxy",
-		Server:  "",
-		SAN:     false,
-		Domains: []string{},
-		Name:    "",
-		Renew:   false,
-	}
-}
-
 func parseCmdlineArguments() (*config, error) {
-	args := defaultConfig()
-
 	osArgs := slices.Delete(append([]string{}, os.Args...), 1, 2)
 	flagset := flag.NewFlagSet(osArgs[0], flag.ContinueOnError)
 
@@ -45,7 +32,7 @@ func parseCmdlineArguments() (*config, error) {
 		flagset.PrintDefaults()
 	}
 
-	dir := flagset.String("dir", "", "directory with configurations and certificates")
+	dir := flagset.String("dir", "/etc/certproxy", "directory with configurations and certificates")
 	server := flagset.String("server", "", "server to request certificates from")
 	san := flagset.Bool("san", false, "request a san certificate with domains from -domains")
 	domains := flagset.String("domains", "", "list of domains to request; seperated by comma")
