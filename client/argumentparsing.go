@@ -24,6 +24,7 @@ type config struct {
 	Renew   bool     `json:"-"`
 }
 
+// parseCmdlineArguments returns a config with values from dir path
 func parseCmdlineArguments() (*config, error) {
 	osArgs := slices.Delete(append([]string{}, os.Args...), 1, 2)
 	flagset := flag.NewFlagSet(osArgs[0], flag.ContinueOnError)
