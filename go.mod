@@ -6,7 +6,7 @@ require (
 	github.com/simplylib/errgroup v0.0.5
 	github.com/simplylib/multierror v0.0.2
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
-	google.golang.org/grpc v1.54.0
+	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 )
 
