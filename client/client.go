@@ -94,7 +94,7 @@ func Run(ctx context.Context) error {
 			return err
 		}
 
-		err = renewCertificates(ctx, certs)
+		err = renewCertificates(ctx, certs, args.Dir, args.Server, args.Token)
 		if err != nil {
 			return err
 		}

@@ -81,6 +81,16 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 	return certs, nil
 }
 
-func renewCertificates(ctx context.Context, configs []certificateConfig) error {
-	return nil
+func renewCertificates(ctx context.Context, configs []certificateConfig, dir, remote, token string) error {
+	eg := errgroup.Group{}
+	eg.SetLimit(runtime.NumCPU())
+	for _, config := range configs {
+		config := config
+		eg.Go(func() error {
+			if config.Shell != "" {
+			}
+			return nil
+		})
+	}
+	return eg.Wait()
 }
