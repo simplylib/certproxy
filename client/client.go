@@ -14,56 +14,56 @@ configuration precedence:
 layout examples for cli:
 
 
-certproxy client -dir /etc/certificateproxy -server="certproxy.claytontii.com:9777" -san -name="claytontii" -domains="*.claytontii.com,claytontii.com"
+certproxy client -dir /etc/certificateproxy -server="certproxy.clayton.coffee:9777" -san -name="clayton.coffee" -domains="*.clayton.coffee,clayton.coffee"
 /etc/certificateproxy:
 	config.json
 		{"server":"", "token":"apikey"}
-	claytontii
+	clayton.coffee
 		certificate.json
-			{"domains": [ "*.claytontii.com", "claytontii.com" ] }
+			{"domains": [ "*.clayton.coffee", "clayton.coffee" ] }
 		fullchain.pem
 		privatekey.pem
 
 
-certproxy client -server="certproxy.claytontii.com:9777" -domains="*.claytontii.com,claytontii.com"
+certproxy client -server="certproxy.clayton.coffee:9777" -domains="*.clayton.coffee,clayton.coffee"
 /etc/certproxy:
 	config.json
 		{"server": "", "token":"apikey"}
-	*.claytontii.com
+	*.clayton.coffee
 		certificate.json
-			{"domains":["*.claytontii.com"]}
+			{"domains":["*.clayton.coffee"]}
 		fullchain.pem
 		privatekey.pem
-	claytontii.com
+	clayton.coffee
 		certificate.json
-			{"domains":["claytontii.com"]}
+			{"domains":["clayton.coffee"]}
 		fullchain.pem
 		privatekey.pem
 
 
-certproxy client -domains="*.claytontii.com,claytontii.com"
+certproxy client -domains="*.clayton.coffee,clayton.coffee"
 /etc/certproxy:
 	config.json
-		{"server": "certproxy.claytontii.com:9777", "token":"apikey"}
-	*.claytontii.com
+		{"server": "certproxy.clayton.coffee:9777", "token":"apikey"}
+	*.clayton.coffee
 		certificate.json
-			{"domains":["*.claytontii.com"]}
+			{"domains":["*.clayton.coffee"]}
 		fullchain.pem
 		privatekey.pem
-	claytontii.com
+	clayton.coffee
 		certificate.json
-			{"domains":["claytontii.com"]}
+			{"domains":["clayton.coffee"]}
 		fullchain.pem
 		privatekey.pem
 
 
-certproxy client -domains="*.claytontii.com" -shell="/bin/sh" -posthook="sudo systemctl restart nginx"
+certproxy client -domains="*.clayton.coffee" -shell="/bin/sh" -posthook="sudo systemctl restart nginx"
 /etc/certproxy
 	config.json
-		{"server":"certproxy.claytontii.com:9777", "token":"apikey", "post_renew_hook":"sudo systemctl restart nginx"}
-	*.claytontii.com
+		{"server":"certproxy.clayton.coffee:9777", "token":"apikey", "post_renew_hook":"sudo systemctl restart nginx"}
+	*.clayton.coffee
 		certificate.json
-			{"domains":["*.claytontii.com"], "post_renew_hook":"sudo systemctl restart nginx"}
+			{"domains":["*.clayton.coffee"], "post_renew_hook":"sudo systemctl restart nginx"}
 		fullchain.pem
 		privatekey.pem
 
@@ -71,10 +71,10 @@ certproxy client -domains="*.claytontii.com" -shell="/bin/sh" -posthook="sudo sy
 certproxy client --renew
 /etc/certproxy
 	config.json
-		{"server": "certproxy.claytontii.com:9777", "token":"apikey"}
-	*.claytontii.com
+		{"server": "certproxy.clayton.coffee:9777", "token":"apikey"}
+	*.clayton.coffee
 		certificate.json
-			{"domains":["*.claytontii.com"]}
+			{"domains":["*.clayton.coffee"]}
 		fullchain.pem
 		privatekey.pem
 
