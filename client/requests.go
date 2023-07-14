@@ -15,7 +15,6 @@ import (
 	"log"
 
 	"github.com/simplylib/certproxy/protocol"
-	"github.com/simplylib/multierror"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -71,7 +70,7 @@ func getCertificate(ctx context.Context, token string, remote string, csr []byte
 	}
 	defer func() {
 		if err2 := conn.Close(); err != nil {
-			err = multierror.Append(err, fmt.Errorf("could not close gRPC connection (%w)", err2))
+			err = errors.Join(err, fmt.Errorf("could not close gRPC connection (%w)", err2))
 		}
 	}()
 
