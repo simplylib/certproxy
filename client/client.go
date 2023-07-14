@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"log"
 )
 
 /*
@@ -86,6 +87,11 @@ func Run(ctx context.Context) error {
 	args, err := parseCmdlineArguments()
 	if err != nil {
 		return err
+	}
+
+	if args.PrintConfig {
+		log.Println("\n" + args.String())
+		return nil
 	}
 
 	if args.Renew {

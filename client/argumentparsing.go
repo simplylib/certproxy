@@ -15,14 +15,26 @@ import (
 )
 
 type config struct {
-	// Dir can not be specified by json.
-	Dir     string   `json:"-"`
-	Server  string   `json:"server"`
-	Token   string   `json:"token"`
-	SAN     bool     `json:"-"`
-	Domains []string `json:"-"`
-	Name    string   `json:"-"`
-	Renew   bool     `json:"-"`
+	Dir         string   `json:"-"`
+	Server      string   `json:"server"`
+	Token       string   `json:"token"`
+	SAN         bool     `json:"-"`
+	Domains     []string `json:"-"`
+	Name        string   `json:"-"`
+	Renew       bool     `json:"-"`
+	PrintConfig bool     `json:"-"`
+}
+
+func (c config) String() string {
+	builder := strings.Builder{}
+	builder.WriteString(fmt.Sprintf("Dir: %v\n", c.Dir))
+	builder.WriteString(fmt.Sprintf("Server: %v\n", c.Server))
+	builder.WriteString(fmt.Sprintf("Token: %v\n", c.Token))
+	builder.WriteString(fmt.Sprintf("SAN: %v\n", c.SAN))
+	builder.WriteString(fmt.Sprintf("Domains: %v\n", c.Domains))
+	builder.WriteString(fmt.Sprintf("Name: %v\n", c.Name))
+	builder.WriteString(fmt.Sprintf("Renew: %v", c.Renew))
+	return builder.String()
 }
 
 // parseCmdlineArguments returns a config with values from dir path
@@ -41,6 +53,7 @@ func parseCmdlineArguments() (*config, error) {
 	domains := flagset.String("domains", "", "list of domains to request; seperated by comma")
 	name := flagset.String("name", "", "name for directory holding certificate (default: dir/domain, domain is first domain in a san certificate)")
 	renew := flagset.Bool("renew", false, "renew certificates, generally to be called by a timer")
+	printConfig := flagset.Bool("printconfig", false, "print the config options that certproxy will use")
 	if err := flagset.Parse(osArgs[1:]); err != nil {
 		return nil, err
 	}
@@ -120,6 +133,8 @@ func parseCmdlineArguments() (*config, error) {
 	if *renew {
 		args.Renew = *renew
 	}
+
+	args.PrintConfig = *printConfig
 
 	return args, nil
 }
