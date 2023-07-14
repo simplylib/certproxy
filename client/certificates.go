@@ -78,7 +78,7 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 		})
 	}
 
-	return certs, nil
+	return certs, eg.Wait()
 }
 
 func renewCertificates(ctx context.Context, configs []certificateConfig, dir, remote, token string) error {
