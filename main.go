@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +14,7 @@ import (
 )
 
 func run() error {
-	log.SetFlags(log.Ldate | log.Ltime)
+	log.SetFlags(0)
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
@@ -25,8 +27,10 @@ func run() error {
 		cancelFunc()
 	}()
 
+	helpMessage := fmt.Sprintf("%v runs a server or cli client for a certificate proxy\n\nUsage: %v [command] [flags]\n\nCommands: server, client\n", os.Args[0], os.Args[0])
+
 	if len(os.Args) < 2 {
-		return fmt.Errorf("need subcommand run %v with -h", os.Args[0])
+		return errors.New(helpMessage)
 	}
 
 	switch os.Args[1] {
@@ -37,12 +41,7 @@ func run() error {
 	default:
 	}
 
-	log.SetFlags(0)
-	log.Print(
-		os.Args[0]+" runs a server or cli client for a certificate proxy\n",
-		"\nUsage: "+os.Args[0]+" [command] [flags]\n",
-		"\nCommands: server, client\n",
-	)
+	log.Print(helpMessage)
 
 	return nil
 }
@@ -50,6 +49,9 @@ func run() error {
 func main() {
 	if err := run(); err != nil {
 		log.SetOutput(os.Stderr)
-		log.Fatal(err)
+
+		if !errors.Is(err, flag.ErrHelp) {
+			log.Fatal(err)
+		}
 	}
 }
