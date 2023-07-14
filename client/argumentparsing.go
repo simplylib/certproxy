@@ -49,6 +49,7 @@ func parseCmdlineArguments() (*config, error) {
 
 	dir := flagset.String("dir", "/etc/certproxy", "directory with configurations and certificates")
 	server := flagset.String("server", "", "server to request certificates from")
+	token := flagset.String("token", "", "token to authenticate to the certproxy server")
 	san := flagset.Bool("san", false, "request a san certificate with domains from -domains")
 	domains := flagset.String("domains", "", "list of domains to request; seperated by comma")
 	name := flagset.String("name", "", "name for directory holding certificate (default: dir/domain, domain is first domain in a san certificate)")
@@ -90,6 +91,15 @@ func parseCmdlineArguments() (*config, error) {
 
 	if *server != "" {
 		args.Server = *server
+	}
+
+	// Token
+	if env := os.Getenv("CERTPROXY_TOKEN"); env != "" {
+		args.Token = env
+	}
+
+	if *token != "" {
+		args.Token = *token
 	}
 
 	// SAN
