@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 )
 
@@ -85,6 +87,23 @@ certproxy client --renew
 
 func Run(ctx context.Context) error {
 	args, err := parseCmdlineArguments()
+	if err != nil {
+		return err
+	}
+
+	// Validate config makes sense
+	if args.Server == "" {
+		err = errors.Join(err, fmt.Errorf("server must be specified in config file {\"Server\":\"\"}, cmdline argument \"-server/--server\", or environment variable CERTPROXY_SERVER"))
+	}
+
+	if args.Token == "" {
+		err = errors.Join(err, fmt.Errorf("token must be specified in config file {\"Token\":\"\"}, cmdline argument \"-token/--token\", or environment variable CERTPROXY_TOKEN"))
+	}
+
+	if !args.Renew && len(args.Domains) == 0 {
+		err = errors.Join(err, fmt.Errorf("domain(s) must be specified when not renewing"))
+	}
+
 	if err != nil {
 		return err
 	}
