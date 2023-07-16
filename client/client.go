@@ -109,7 +109,7 @@ func Run(ctx context.Context) error {
 	}
 
 	if args.PrintConfig {
-		log.Println("\n" + args.String())
+		log.Println(args)
 		return nil
 	}
 
