@@ -113,6 +113,8 @@ func Run(ctx context.Context) error {
 		return nil
 	}
 
+	// Either renew or issue
+
 	if args.Renew {
 		certs, err := getCertificatesFromDisk(ctx, args.Dir)
 		if err != nil {
