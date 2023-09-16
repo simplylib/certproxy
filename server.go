@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/simplylib/certproxy/server"
-	"golang.org/x/exp/slices"
 )
 
 func runServer(ctx context.Context) error {
