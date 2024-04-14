@@ -12,7 +12,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/simplylib/certproxy/protocol"
 	"google.golang.org/grpc"
@@ -56,7 +56,7 @@ func generateCSR(domains []string) (csrder []byte, privKeyPEM []byte, err error)
 
 // getCertificate from remote url using token for authentication and csr (in DER format)
 func getCertificate(ctx context.Context, token string, remote string, csr []byte) (certificate []byte, err error) {
-	log.Printf("INFO: Dialing gRPC endpoint (%v)", remote)
+	slog.Info("gRPC Dialing", "endpoint", remote)
 	conn, err := grpc.DialContext(
 		ctx,
 		remote,
@@ -74,7 +74,7 @@ func getCertificate(ctx context.Context, token string, remote string, csr []byte
 		}
 	}()
 
-	log.Printf("INFO: Connected to gRPC endpoint, creating certificate request")
+	slog.Info("Connected to gRPC endpoint, creating certificate request")
 	client := protocol.NewCertificateServiceClient(conn)
 
 	reply, err := client.Create(ctx, &protocol.CertificateCreateRequest{

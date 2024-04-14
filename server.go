@@ -30,14 +30,14 @@ func runServer(ctx context.Context) error {
 		if errors.Is(err, flag.ErrHelp) {
 			return nil
 		}
-		return fmt.Errorf("could not parse command line flags (%w)", err)
+		return fmt.Errorf("could not parse command line flags: %w", err)
 	}
 
 	var certificate *tls.Certificate
 	if *certPrivPEMPath != "" && *certPubPEMPath != "" {
 		cert, err := tls.LoadX509KeyPair(filepath.Clean(*certPubPEMPath), filepath.Clean(*certPrivPEMPath))
 		if err != nil {
-			return fmt.Errorf("could not load x509 key pair (%w)", err)
+			return fmt.Errorf("could not load x509 key pair: %w", err)
 		}
 		certificate = &cert
 	}
@@ -50,7 +50,7 @@ func runServer(ctx context.Context) error {
 		}
 		err := s.Open()
 		if err != nil {
-			errChan <- fmt.Errorf("error while running gRPC server (%w)", err)
+			errChan <- fmt.Errorf("error while running gRPC server: %w", err)
 		}
 		errChan <- nil
 	}()

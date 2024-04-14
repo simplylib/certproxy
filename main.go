@@ -3,34 +3,28 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
-	"syscall"
 
 	"github.com/simplylib/certproxy/client"
 )
 
 func run() error {
-	log.SetFlags(0)
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	defer cancelFunc()
+	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
 	go func() {
-		osSignal := make(chan os.Signal, 1)
-		signal.Notify(osSignal, syscall.SIGTERM, os.Interrupt)
-
-		s := <-osSignal
-		log.Printf("Cancelling operations due to (%v)\n", s.String())
-		cancelFunc()
+		<-ctx.Done()
+		slog.Info("Cancelling due to interrupt")
 	}()
 
-	helpMessage := fmt.Sprintf("%v runs a server or cli client for a certificate proxy\n\nUsage: %v [command] [flags]\n\nCommands: server, client\n", os.Args[0], os.Args[0])
+	helpMessage := fmt.Sprintf("%v runs a server or cli client for a certificate proxy\n\nUsage: %v [command] [flags]\n\nCommands: server, client", os.Args[0], os.Args[0])
 
 	if len(os.Args) < 2 {
-		return errors.New(helpMessage)
+		fmt.Println(helpMessage)
+		return errors.New("")
 	}
 
 	switch os.Args[1] {
@@ -41,17 +35,13 @@ func run() error {
 	default:
 	}
 
-	log.Print(helpMessage)
-
-	return nil
+	fmt.Println(helpMessage)
+	return errors.New("")
 }
 
 func main() {
 	if err := run(); err != nil {
-		log.SetOutput(os.Stderr)
-
-		if !errors.Is(err, flag.ErrHelp) {
-			log.Fatal(err)
-		}
+		fmt.Print(err)
+		os.Exit(1)
 	}
 }

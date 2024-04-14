@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -38,11 +38,11 @@ func (s *Server) Create(ctx context.Context, req *protocol.CertificateCreateRequ
 // Open GRPC Server and begin handling requests.
 func (s *Server) Open() error {
 	if s.Certificate == nil {
-		log.Println("WARNING: starting server with no certificate, communications are in plaintext.")
+		slog.Warn("starting server with no certificate, communications are not encrypted")
 
 		s.grpcServer = grpc.NewServer()
 	} else {
-		log.Println("INFO: starting server with certificate")
+		slog.Warn("starting server with no certificate")
 
 		s.grpcServer = grpc.NewServer(
 			grpc.Creds(credentials.NewTLS(&tls.Config{
@@ -58,7 +58,7 @@ func (s *Server) Open() error {
 		return fmt.Errorf("could not listen on tcp socket (%w)", err)
 	}
 
-	log.Printf("INFO: running gRPC endpoint at (%v)\n", listen.Addr())
+	slog.Info("running gRPC", "endpoint", listen.Addr().String())
 
 	protocol.RegisterCertificateServiceServer(s.grpcServer, s)
 

@@ -22,7 +22,7 @@ type certificateConfig struct {
 func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConfig, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("could not ReadDir (%v) due to error (%w)", dir, err)
+		return nil, fmt.Errorf("could not ReadDir (%v) due to error: %w", dir, err)
 	}
 
 	var (
@@ -31,7 +31,7 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 		eg        errgroup.Group
 	)
 
-	eg.SetLimit(runtime.NumCPU())
+	eg.SetLimit(runtime.NumCPU() * 4)
 	for _, entry := range entries {
 		select {
 		case <-ctx.Done():
@@ -56,10 +56,10 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 			}
 
 			if err = json.Unmarshal(data, &cert); err != nil {
-				return fmt.Errorf("could not unmarshal (%v) as JSON due to error (%w)", certificateConfigPath, err)
+				return fmt.Errorf("could not unmarshal (%v) as JSON due to error: %w", certificateConfigPath, err)
 			}
 
-			// validate config makes sense
+			// Validate config makes sense
 			if len(cert.Domains) < 1 {
 				return fmt.Errorf("(%v) does not have any domains associated with it", certificateConfigPath)
 			}

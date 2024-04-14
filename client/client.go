@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 )
 
 /*
@@ -109,7 +108,7 @@ func Run(ctx context.Context) error {
 	}
 
 	if args.PrintConfig {
-		log.Println(args)
+		fmt.Println(args)
 		return nil
 	}
 
