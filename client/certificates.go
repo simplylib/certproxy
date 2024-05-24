@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -70,6 +71,11 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 				}
 			}
 
+			// Set shell default
+			if cert.Shell == "" {
+				cert.Shell = "/bin/sh"
+			}
+
 			certsLock.Lock()
 			certs = append(certs, cert)
 			certsLock.Unlock()
@@ -87,8 +93,12 @@ func renewCertificates(ctx context.Context, configs []certificateConfig, dir, re
 	for _, config := range configs {
 		config := config
 		eg.Go(func() error {
-			if config.Shell != "" {
+
+			// Run the configured post-hook command
+			if err := exec.CommandContext(ctx, config.Shell, config.PostRenewHook).Run(); err != nil {
+				return fmt.Errorf("error while running (%v %v): %w", config.Shell, config.PostRenewHook, err)
 			}
+
 			return nil
 		})
 	}
