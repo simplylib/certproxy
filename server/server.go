@@ -43,7 +43,10 @@ func (s *Server) Open() error {
 	if s.Certificate == nil {
 		slog.Warn("starting server with no certificate, communications are in plaintext.", "addr", s.Network)
 	} else {
-		s.httpServ.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*s.Certificate}}
+		s.httpServ.TLSConfig = &tls.Config{
+			Certificates: []tls.Certificate{*s.Certificate},
+			MinVersion:   tls.VersionTLS13,
+		}
 		slog.Info("starting server with certificate", "addr", s.Network)
 	}
 
