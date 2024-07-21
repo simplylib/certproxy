@@ -6,17 +6,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"errors"
 	"fmt"
-	"log/slog"
-
-	"github.com/simplylib/certproxy/protocol"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 // generateCSR for requested domain, returning a CSR in DER format, private key in PEM format
@@ -56,39 +49,5 @@ func generateCSR(domains []string) (csrder []byte, privKeyPEM []byte, err error)
 
 // getCertificate from remote url using token for authentication and csr (in DER format)
 func getCertificate(ctx context.Context, token string, remote string, csr []byte) (certificate []byte, err error) {
-	slog.Info("gRPC Dialing", "endpoint", remote)
-	conn, err := grpc.DialContext(
-		ctx,
-		remote,
-		grpc.WithBlock(),
-		grpc.WithReturnConnectionError(),
-		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{MinVersion: tls.VersionTLS13})),
-		grpc.WithDefaultCallOptions(grpc.UseCompressor("gzip")),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("could not Dial gRPC server (%w)", err)
-	}
-	defer func() {
-		if err2 := conn.Close(); err != nil {
-			err = errors.Join(err, fmt.Errorf("could not close gRPC connection (%w)", err2))
-		}
-	}()
-
-	slog.Info("Connected to gRPC endpoint, creating certificate request")
-	client := protocol.NewCertificateServiceClient(conn)
-
-	reply, err := client.Create(ctx, &protocol.CertificateCreateRequest{
-		Token:                     token,
-		CertificateSigningRequest: csr,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("could not send a CertificateCreateRequest (%w)", err)
-	}
-
-	// TODO: validate certificate
-	if len(reply.Certificate) == 0 {
-		return nil, errors.New("certificate from server is empty")
-	}
-
-	return reply.Certificate, nil
+	return nil, nil
 }
