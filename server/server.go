@@ -5,13 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
-	"net"
-
-	_ "google.golang.org/grpc/encoding/gzip"
-
-	"github.com/simplylib/certproxy/protocol"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	"net/http"
+	"time"
 )
 
 type AuthStore interface {
@@ -25,52 +20,47 @@ type Server struct {
 	// Certificate to use for listening. If nil, disable TLS.
 	Certificate *tls.Certificate
 
+	// AuthStore to use as backend authentication store
 	AuthStore AuthStore
 
-	protocol.UnimplementedCertificateServiceServer
-	grpcServer *grpc.Server
-}
-
-func (s *Server) Create(ctx context.Context, req *protocol.CertificateCreateRequest) (*protocol.CertificateCreateReply, error) {
-	return &protocol.CertificateCreateReply{}, nil
+	httpServ http.Server
 }
 
 // Open GRPC Server and begin handling requests.
 func (s *Server) Open() error {
+	mux := http.ServeMux{}
+
+	s.httpServ = http.Server{
+		Addr:              s.Network,
+		Handler:           &mux,
+		ReadTimeout:       time.Second * 5,
+		ReadHeaderTimeout: time.Second * 5,
+		WriteTimeout:      time.Second * 5,
+		IdleTimeout:       time.Second * 5,
+		MaxHeaderBytes:    1024 * 10,
+	}
+
 	if s.Certificate == nil {
-		slog.Warn("starting server with no certificate, communications are not encrypted")
-
-		s.grpcServer = grpc.NewServer()
+		slog.Warn("starting server with no certificate, communications are in plaintext.", "addr", s.Network)
 	} else {
-		slog.Warn("starting server with no certificate")
-
-		s.grpcServer = grpc.NewServer(
-			grpc.Creds(credentials.NewTLS(&tls.Config{
-				Certificates: []tls.Certificate{*s.Certificate},
-				ClientAuth:   tls.NoClientCert,
-				MinVersion:   tls.VersionTLS13,
-			})),
-		)
+		s.httpServ.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*s.Certificate}}
+		slog.Info("starting server with certificate", "addr", s.Network)
 	}
 
-	listen, err := net.Listen("tcp", s.Network)
-	if err != nil {
-		return fmt.Errorf("could not listen on tcp socket (%w)", err)
-	}
+	mux.Handle("/", s)
 
-	slog.Info("running gRPC", "endpoint", listen.Addr().String())
-
-	protocol.RegisterCertificateServiceServer(s.grpcServer, s)
-
-	err = s.grpcServer.Serve(listen)
-	if err != nil {
-		return fmt.Errorf("error while serving grpc server (%w)", err)
+	if err := s.httpServ.ListenAndServe(); err != nil {
+		return fmt.Errorf("httpServ.ListenAndServe error: %w", err)
 	}
 
 	return nil
 }
 
 // Close server gracefully, making sure to finish current requests before returning.
-func (s *Server) Close() {
-	s.grpcServer.GracefulStop()
+func (s *Server) Close(ctx context.Context) error {
+	if err := s.httpServ.Shutdown(ctx); err != nil {
+		return fmt.Errorf("could not httpServ.Shutdown due to net.Listener: %w", err)
+	}
+
+	return nil
 }
