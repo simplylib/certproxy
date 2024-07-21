@@ -1,7 +1,12 @@
-build: generate
+.PHONY: build
+build:
 	go build .
-generate:
-	cd protocol && make
+
+.PHONY: run-server
+run-server:
+	go run . server
+
+.PHONY: precommit
 precommit:
 	go mod tidy
 	go vet -race ./...
