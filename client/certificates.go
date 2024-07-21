@@ -51,7 +51,7 @@ func getCertificatesFromDisk(ctx context.Context, dir string) ([]certificateConf
 
 			certificateConfigPath := filepath.Join(dir, entry.Name(), "certificate.json")
 
-			data, err := os.ReadFile(certificateConfigPath)
+			data, err := os.ReadFile(certificateConfigPath) // #nosec G304 -- Including a certficiate's config is the point of this, can't avoid it
 			if err != nil {
 				return fmt.Errorf("could not ReadFile (%v) error (%w)", certificateConfigPath, err)
 			}
@@ -95,7 +95,8 @@ func renewCertificates(ctx context.Context, configs []certificateConfig, dir, re
 		eg.Go(func() error {
 
 			// Run the configured post-hook command
-			if err := exec.CommandContext(ctx, config.Shell, config.PostRenewHook).Run(); err != nil {
+			err := exec.CommandContext(ctx, config.Shell, config.PostRenewHook).Run() // #nosec G204 -- Configurable exec is the point of a post-hook
+			if err != nil {
 				return fmt.Errorf("error while running (%v %v): %w", config.Shell, config.PostRenewHook, err)
 			}
 
