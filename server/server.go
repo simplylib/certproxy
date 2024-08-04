@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-type AuthStore interface {
-}
-
 // Server handles all gRPC functionalities.
 type Server struct {
 	// Network is the address that the Server will listen on.
@@ -20,8 +17,8 @@ type Server struct {
 	// Certificate to use for listening. If nil, disable TLS.
 	Certificate *tls.Certificate
 
-	// AuthStore to use as backend authentication store
-	AuthStore AuthStore
+	// Storage to use as backend store.
+	Storage Storage
 
 	httpServ http.Server
 }
@@ -50,7 +47,8 @@ func (s *Server) Open() error {
 		slog.Info("starting server with certificate", "addr", s.Network)
 	}
 
-	mux.Handle("/", s)
+	mux.Handle("/renew", s)
+	mux.Handle("/issue", s)
 
 	if err := s.httpServ.ListenAndServe(); err != nil {
 		return fmt.Errorf("httpServ.ListenAndServe error: %w", err)

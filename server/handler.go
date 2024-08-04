@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
+func (s *Server) Renew(w http.ResponseWriter, r *http.Request) {
+	
+}
+
+func (s *Server) Issue(w http.ResponseWriter, r *http.Request) {
+
 }
