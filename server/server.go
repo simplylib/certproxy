@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -23,20 +24,21 @@ type Server struct {
 	httpServ http.Server
 }
 
-// Open GRPC Server and begin handling requests.
+// Open http Server and begin handling requests. This is blocking.
 func (s *Server) Open() error {
 	mux := http.ServeMux{}
 
 	s.httpServ = http.Server{
 		Addr:              s.Network,
 		Handler:           &mux,
-		ReadTimeout:       time.Second * 5,
-		ReadHeaderTimeout: time.Second * 5,
-		WriteTimeout:      time.Second * 5,
-		IdleTimeout:       time.Second * 5,
+		ReadTimeout:       time.Second * 10,
+		ReadHeaderTimeout: time.Second * 10,
+		WriteTimeout:      time.Second * 10,
+		IdleTimeout:       time.Second * 10,
 		MaxHeaderBytes:    1024 * 10,
 	}
 
+	// TODO: automatically get our own certificate from
 	if s.Certificate == nil {
 		slog.Warn("starting server with no certificate, communications are in plaintext.", "addr", s.Network)
 	} else {
@@ -47,10 +49,9 @@ func (s *Server) Open() error {
 		slog.Info("starting server with certificate", "addr", s.Network)
 	}
 
-	mux.Handle("/renew", s)
-	mux.Handle("/issue", s)
+	mux.HandleFunc("POST /issue", s.Issue)
 
-	if err := s.httpServ.ListenAndServe(); err != nil {
+	if err := s.httpServ.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("httpServ.ListenAndServe error: %w", err)
 	}
 
@@ -64,4 +65,9 @@ func (s *Server) Close(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// TODO: implement replay attack protection
+func (s *Server) Issue(w http.ResponseWriter, r *http.Request) {
+
 }
